@@ -1,7 +1,0 @@
-mode: set
-try_go_test/hello/hello.go:5.35,6.20 1 1
-try_go_test/hello/hello.go:6.20,8.3 1 0
-try_go_test/hello/hello.go:10.2,10.38 1 1
-try_go_test/hello/hello.go:13.33,14.20 1 1
-try_go_test/hello/hello.go:14.20,16.3 1 0
-try_go_test/hello/hello.go:18.2,18.36 1 1
