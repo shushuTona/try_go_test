@@ -47,11 +47,6 @@ func (github *Github) GetUserRepos(userName string) ([]GithubRepository, error) 
 	}
 	defer res.Body.Close()
 
-	// fmt.Println("res")
-	// fmt.Printf("%#v\n\n", res)
-	fmt.Println("res.body")
-	fmt.Printf("%#v\n\n", res.Body)
-
 	var body, readErr = io.ReadAll(res.Body)
 	if readErr != nil {
 		return nil, readErr

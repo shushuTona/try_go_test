@@ -7,7 +7,11 @@ import (
 	"testing"
 )
 
-func NewMockServer(t *testing.T) *httptest.Server {
+func NewMockServer(f http.HandlerFunc) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(f))
+}
+
+func TestGetUserRepos_OK(t *testing.T) {
 	var testHandler = func(w http.ResponseWriter, req *http.Request) {
 		if req.URL.Path != "/users/shushuTona/repos" {
 			t.Errorf("Faild request path, want %s, result %s", "/users/shushuTona/repos", req.URL.Path)
@@ -26,43 +30,23 @@ func NewMockServer(t *testing.T) *httptest.Server {
 			"updated_at": "2022-02-19T17:16:14Z",
 			"pushed_at":  "2022-03-03T18:51:24Z",
 		}
-		var body = make([]map[string]interface{}, 1)
+		var body []map[string]interface{}
 		body = append(body, repo)
 
 		var b, _ = json.Marshal(body)
 		w.Write(b)
 	}
 
-	return httptest.NewServer(http.HandlerFunc(testHandler))
-}
-
-func NewFaildMockServer(t *testing.T) *httptest.Server {
-	var testHandler = func(w http.ResponseWriter, req *http.Request) {
-		if req.URL.Path != "/users/not_exsist_user_name/repos" {
-			t.Errorf("Faild request path, want %s, result %s", "/users/not_exsist_user_name/repos", req.URL.Path)
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-
-		var body = make(map[string]string)
-		body["message"] = "Not Found"
-		body["documentation_url"] = "https://docs.github.com/rest/reference/repos#list-repositories-for-a-user"
-
-		var b, _ = json.Marshal(body)
-		w.Write(b)
-	}
-
-	return httptest.NewServer(http.HandlerFunc(testHandler))
-}
-
-func TestGetUserRepos_OK(t *testing.T) {
-	var server = NewMockServer(t)
+	var server = NewMockServer(testHandler)
 	defer server.Close()
 
 	var client = server.Client()
 	var github = NewGithub(server.URL, client)
-	var repoList, _ = github.GetUserRepos("shushuTona")
+	var repoList, err = github.GetUserRepos("shushuTona")
+
+	if err != nil {
+		t.Errorf("Err %s", err.Error())
+	}
 
 	if repoList[0].Id != 461129021 {
 		t.Errorf("Faild Id, want %d, result %d", 461129021, repoList[0].Id)
@@ -97,8 +81,24 @@ func TestGetUserRepos_OK(t *testing.T) {
 	}
 }
 
-func TestGetUserRepos_Faild(t *testing.T) {
-	var server = NewFaildMockServer(t)
+func TestGetUserRepos_Faild_NotFound(t *testing.T) {
+	var testHandler = func(w http.ResponseWriter, req *http.Request) {
+		if req.URL.Path != "/users/not_exsist_user_name/repos" {
+			t.Errorf("Faild request path, want %s, result %s", "/users/not_exsist_user_name/repos", req.URL.Path)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+
+		var body = make(map[string]string)
+		body["message"] = "Not Found"
+		body["documentation_url"] = "https://docs.github.com/rest/reference/repos#list-repositories-for-a-user"
+
+		var b, _ = json.Marshal(body)
+		w.Write(b)
+	}
+
+	var server = NewMockServer(testHandler)
 	defer server.Close()
 
 	var client = server.Client()
