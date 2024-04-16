@@ -1,4 +1,4 @@
-FROM golang:1.20
+FROM golang:1.22
 
 RUN cd /go/src && mkdir try_go_test
 
