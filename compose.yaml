@@ -1,0 +1,26 @@
+services:
+  app:
+    image: golang:1.23
+    ports:
+      - '8088:8000'
+    volumes:
+      - type: bind
+        source: ./src
+        target: /go/src
+    tty: true
+    depends_on:
+      - db
+    networks:
+      - test_network
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+    ports:
+      - "3306:3306"
+    networks:
+      - test_network
+
+networks:
+    test_network:
+      external: true
