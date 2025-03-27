@@ -1,6 +1,6 @@
 services:
   app:
-    image: golang:1.23
+    image: golang:1.24
     ports:
       - '8088:8000'
     volumes:
@@ -12,6 +12,7 @@ services:
       - db
     networks:
       - test_network
+
   db:
     image: mysql:8.0
     environment:
