@@ -8,6 +8,7 @@ services:
         source: ./src
         target: /go/src
     tty: true
+    working_dir: /go/src
     depends_on:
       - db
     networks:
